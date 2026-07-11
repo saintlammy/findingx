@@ -64,6 +64,18 @@ body{margin:0;background:#F4F2EC;color:#141414;font-family:'Space Grotesk',sans-
 #xg-menu.open{display:flex}
 .c-nav-cta{white-space:nowrap}
 @media (max-width:380px){.c-nav-cta{font-size:12px !important;padding:8px 14px !important}}
+@media (max-width:600px){
+#xg-badge{width:76px !important;height:76px !important}
+#xg-eyebrow{max-width:calc(100% - 96px)}
+}
+@media (max-width:480px){
+.c-mailto{font-size:13px !important;text-align:center}
+}
+@media (max-width:360px){
+nav{padding-left:12px !important;padding-right:12px !important}
+#xgnav-burger{padding:8px 9px !important}
+#xg-rotword{font-size:26px !important}
+}
 .c-nl{transition:color .15s}
 .c-nl:hover{color:#5B2EE0 !important}
 .c-press3{transition:box-shadow .12s,transform .12s}
@@ -114,7 +126,7 @@ body{margin:0;background:#F4F2EC;color:#141414;font-family:'Space Grotesk',sans-
 <header id="top" style="position:relative;overflow:hidden;border-bottom:2px solid #141414">
   <div id="xg-hero-grid" style="display:grid;gap:0;align-items:stretch">
     <div style="padding:clamp(36px,7vh,80px) clamp(16px,4vw,48px);position:relative">
-      <div style="display:inline-block;background:#141414;color:#D8F34C;font-size:11px;font-weight:700;letter-spacing:.18em;padding:6px 14px;margin-bottom:28px">A BUILDERSCABAL INITIATIVE ★ FIRST EDITION</div>
+      <div id="xg-eyebrow" style="display:inline-block;background:#141414;color:#D8F34C;font-size:11px;font-weight:700;letter-spacing:.18em;padding:6px 14px;margin-bottom:28px">A BUILDERSCABAL INITIATIVE ★ FIRST EDITION</div>
       <h1 id="xg-h1" style="margin:0;font-family:'Unbounded',sans-serif;font-weight:800;font-size:clamp(44px,8.2vw,128px);line-height:.98;letter-spacing:-0.03em">
         <span style="display:block">FINDING</span>
         <span style="display:block;color:#5B2EE0">FINDING</span>
@@ -122,7 +134,7 @@ body{margin:0;background:#F4F2EC;color:#141414;font-family:'Space Grotesk',sans-
         <span id="xg-rotword" style="display:inline-block;background:#D8F34C;border:2px solid #141414;box-shadow:5px 5px 0 #141414;padding:2px 18px;margin-top:14px;transform:rotate(-2deg);font-size:clamp(30px,5vw,72px)">OPPORTUNITY</span>
       </h1>
       <p style="max-width:520px;font-size:clamp(15px,1.5vw,18px);line-height:1.55;margin:34px 0 0;font-weight:500">You moved for something. Let's find it. Honest lessons from Africans who've figured out living, working &amp; building in the UK.</p>
-      <div style="position:absolute;top:clamp(20px,4vw,44px);right:clamp(16px,3vw,40px);width:clamp(90px,10vw,130px);height:clamp(90px,10vw,130px);animation:xg-spin 14s linear infinite">
+      <div id="xg-badge" style="position:absolute;top:clamp(20px,4vw,44px);right:clamp(16px,3vw,40px);width:clamp(90px,10vw,130px);height:clamp(90px,10vw,130px);animation:xg-spin 14s linear infinite">
         <svg viewBox="0 0 100 100" style="width:100%;height:100%">
           <defs><path id="xg-circ" d="M 50,50 m -38,0 a 38,38 0 1,1 76,0 a 38,38 0 1,1 -76,0"></path></defs>
           <circle cx="50" cy="50" r="26" fill="#5B2EE0"></circle>
@@ -284,7 +296,7 @@ body{margin:0;background:#F4F2EC;color:#141414;font-family:'Space Grotesk',sans-
         </div>
       ))}
     </div>
-    <a href="mailto:vo@builderscabal.com?subject=Finding%20X%20Partnership%20Enquiry" class="c-press4" style="display:inline-block;margin-top:40px;background:#D8F34C;color:#141414;border:2px solid #141414;box-shadow:4px 4px 0 #141414;text-decoration:none;font-weight:700;font-size:15px;padding:16px 34px">Become a Partner → vo@builderscabal.com</a>
+    <a href="mailto:vo@builderscabal.com?subject=Finding%20X%20Partnership%20Enquiry" class="c-press4 c-mailto" style="display:inline-block;margin-top:40px;background:#D8F34C;color:#141414;border:2px solid #141414;box-shadow:4px 4px 0 #141414;text-decoration:none;font-weight:700;font-size:15px;padding:16px 34px">Become a Partner → vo@builderscabal.com</a>
   </div>
 </section>
 
