@@ -1,0 +1,30 @@
+---
+interface Props { active: 'a' | 'c' }
+const { active } = Astro.props;
+---
+<div class="dir-switcher">
+  <span class="dir-switcher-label">Finding X · Design Preview</span>
+  <div class="dir-switcher-btns">
+    <a href="/" class={active === 'a' ? 'on' : ''}>A · Kinetic Editorial</a>
+    <a href="/crossing" class={active === 'c' ? 'on' : ''}>C · The Crossing</a>
+  </div>
+</div>
+
+<style>
+.dir-switcher{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  background:#141414;color:#F4F2EC;
+  padding:8px clamp(16px,4vw,48px);
+  font-family:'Space Grotesk',sans-serif;
+}
+.dir-switcher-label{font-size:11px;letter-spacing:.18em;text-transform:uppercase;opacity:.55}
+.dir-switcher-btns{display:flex;gap:8px}
+.dir-switcher-btns a{
+  color:#F4F2EC;text-decoration:none;font-size:12px;font-weight:600;
+  padding:5px 14px;border:1px solid rgba(244,242,236,.35);border-radius:999px;
+  transition:background .15s,color .15s;
+}
+.dir-switcher-btns a:hover{border-color:#F4F2EC}
+.dir-switcher-btns a.on{background:#F4F2EC;color:#141414;border-color:#F4F2EC}
+@media (max-width:480px){.dir-switcher-label{display:none}}
+</style>

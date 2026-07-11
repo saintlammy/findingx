@@ -1,0 +1,455 @@
+---
+// Direction C — The Crossing
+import Switcher from '../components/Switcher.astro';
+import { META, EVENT_DATE_ISO, agenda, faqs, audiences, packageBenefits } from '../content';
+
+const whyCards = [
+  { num: '01', title: 'Lessons, not lectures', body: "No theory, no TED-talk polish. Real people who navigated the exact journey you're on — sharing what worked, what didn't, and what they'd do differently." },
+  { num: '02', title: 'Your network, rebuilt', body: 'The room is the product. Founders, operators, advisors, and investors who look like you and have been where you are.' },
+  { num: '03', title: 'The playbook, decoded', body: 'The UK job market, workplace culture, and the unwritten systems that create opportunity — explained by people who cracked them.' },
+  { num: '04', title: 'A community that continues', body: "Your entry into BuildersCabal's growing UK community — the conversations keep going long after the chairs are stacked." },
+];
+
+const speakerSlots = ['Fireside guest', 'Panelist', 'Panelist', 'Panelist'];
+
+const packages = [
+  { tier: 'COMMUNITY PARTNER', price: '£500', tag: 'Be part of the conversation.', bg: '#F4F2EC', fg: '#141414', benefits: packageBenefits.community },
+  { tier: 'SUPPORTING PARTNER', price: '£1,500', tag: 'Engage the room directly.', bg: '#D8F34C', fg: '#141414', benefits: packageBenefits.supporting },
+  { tier: 'HEADLINE PARTNER', price: '£3,000', tag: 'Shape Finding X itself.', bg: '#141414', fg: '#F4F2EC', benefits: packageBenefits.headline },
+];
+
+const tilts = ['-1.5deg', '1deg', '-0.5deg', '1.5deg', '-1deg', '0.5deg'];
+const tiltedAudiences = audiences.map((label, i) => ({ label, tilt: tilts[i % tilts.length] }));
+
+const navLinks = [
+  { href: '#about', label: 'About' },
+  { href: '#speakers', label: 'Speakers' },
+  { href: '#agenda', label: 'Agenda' },
+  { href: '#partner', label: 'Partner' },
+  { href: '#faq', label: 'FAQ' },
+];
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{META.title}</title>
+<meta name="description" content={META.description}>
+<meta property="og:title" content={META.title}>
+<meta property="og:description" content={META.description}>
+<meta property="og:type" content="website">
+<link rel="icon" type="image/png" href="/assets/bc-logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style is:global>
+html{scroll-behavior:smooth}
+body{margin:0;background:#F4F2EC;color:#141414;font-family:'Space Grotesk',sans-serif;-webkit-font-smoothing:antialiased}
+@keyframes xg-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes xg-blink{0%,100%{opacity:1}50%{opacity:.3}}
+@media (prefers-reduced-motion: reduce){*{animation-duration:.01ms !important;transition-duration:.01ms !important}}
+#xgnav-links{display:flex;align-items:center;gap:clamp(10px,2vw,24px)}
+#xgnav-burger{display:none}
+#xg-hero-grid{grid-template-columns:1fr minmax(280px,380px)}
+#xg-hero-aside{border-left:2px solid #141414}
+@media (max-width:840px){
+#xgnav-links{display:none}
+#xgnav-burger{display:inline-block}
+#xg-hero-grid{grid-template-columns:1fr}
+#xg-hero-aside{border-left:none;border-top:2px solid #141414}
+}
+#xg-menu{display:none}
+#xg-menu.open{display:flex}
+.c-nav-cta{white-space:nowrap}
+@media (max-width:380px){.c-nav-cta{font-size:12px !important;padding:8px 14px !important}}
+.c-nl{transition:color .15s}
+.c-nl:hover{color:#5B2EE0 !important}
+.c-press3{transition:box-shadow .12s,transform .12s}
+.c-press3:hover{box-shadow:1px 1px 0 #141414 !important;transform:translate(2px,2px)}
+.c-press4{transition:box-shadow .12s,transform .12s}
+.c-press4:hover{box-shadow:1px 1px 0 #141414 !important;transform:translate(3px,3px)}
+.c-press5{transition:box-shadow .12s,transform .12s}
+.c-press5:hover{box-shadow:2px 2px 0 #141414 !important;transform:translate(3px,3px)}
+.c-aside-ghost{transition:background .15s,color .15s}
+.c-aside-ghost:hover{background:#F4F2EC;color:#5B2EE0 !important}
+.c-row{transition:background .15s}
+.c-row:hover{background:#5B2EE0}
+.c-chip{transition:background .15s}
+.c-chip:hover{background:#D8F34C !important}
+.c-news{transition:box-shadow .12s,transform .12s}
+.c-news:hover{box-shadow:1px 1px 0 #5B2EE0 !important;transform:translate(3px,3px)}
+.c-fl{transition:border-color .15s,color .15s}
+.c-fl:hover{border-color:#D8F34C !important;color:#D8F34C !important}
+[data-faq-a][hidden]{display:none}
+</style>
+</head>
+<body>
+<Switcher active="c" />
+
+<!-- NAV -->
+<nav style="position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px clamp(16px,4vw,48px);background:#F4F2EC;border-bottom:2px solid #141414">
+  <a href="#top" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:#141414">
+    <img src="/assets/bc-logo.png" alt="BuildersCabal" style="height:20px;width:auto">
+    <span style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:14px;letter-spacing:-0.01em">FINDING<span style="color:#5B2EE0">X</span></span>
+  </a>
+  <div style="display:flex;align-items:center;gap:clamp(10px,2vw,24px)">
+    <div id="xgnav-links">
+      {navLinks.map((l) => (
+        <a href={l.href} class="c-nl" style="color:#141414;text-decoration:none;font-size:13px;font-weight:600">{l.label}</a>
+      ))}
+    </div>
+    <a href="#newsletter" class="c-press3 c-nav-cta" style="background:#D8F34C;color:#141414;border:2px solid #141414;text-decoration:none;font-weight:700;font-size:13px;padding:9px 20px;box-shadow:3px 3px 0 #141414">Register Free</a>
+    <button id="xgnav-burger" aria-label="Menu" style="background:#F4F2EC;border:2px solid #141414;cursor:pointer;padding:8px 11px;font-size:15px;line-height:1;color:#141414;min-height:38px;box-shadow:2px 2px 0 #141414">☰</button>
+  </div>
+  <div id="xg-menu" style="position:absolute;top:100%;left:0;right:0;background:#F4F2EC;border-bottom:2px solid #141414;flex-direction:column;padding:6px 20px 14px">
+    {navLinks.map((l, i) => (
+      <a href={l.href} data-menu-link style={`color:#141414;text-decoration:none;font-size:16px;font-weight:700;padding:14px 2px;${i < navLinks.length - 1 ? 'border-bottom:2px solid rgba(20,20,20,.1)' : ''}`}>{l.label}</a>
+    ))}
+  </div>
+</nav>
+
+<!-- HERO -->
+<header id="top" style="position:relative;overflow:hidden;border-bottom:2px solid #141414">
+  <div id="xg-hero-grid" style="display:grid;gap:0;align-items:stretch">
+    <div style="padding:clamp(36px,7vh,80px) clamp(16px,4vw,48px);position:relative">
+      <div style="display:inline-block;background:#141414;color:#D8F34C;font-size:11px;font-weight:700;letter-spacing:.18em;padding:6px 14px;margin-bottom:28px">A BUILDERSCABAL INITIATIVE ★ FIRST EDITION</div>
+      <h1 id="xg-h1" style="margin:0;font-family:'Unbounded',sans-serif;font-weight:800;font-size:clamp(44px,8.2vw,128px);line-height:.98;letter-spacing:-0.03em">
+        <span style="display:block">FINDING</span>
+        <span style="display:block;color:#5B2EE0">FINDING</span>
+        <span style="display:block;-webkit-text-stroke:2px #141414;color:transparent">FINDING</span>
+        <span id="xg-rotword" style="display:inline-block;background:#D8F34C;border:2px solid #141414;box-shadow:5px 5px 0 #141414;padding:2px 18px;margin-top:14px;transform:rotate(-2deg);font-size:clamp(30px,5vw,72px)">OPPORTUNITY</span>
+      </h1>
+      <p style="max-width:520px;font-size:clamp(15px,1.5vw,18px);line-height:1.55;margin:34px 0 0;font-weight:500">You moved for something. Let's find it. Honest lessons from Africans who've figured out living, working &amp; building in the UK.</p>
+      <div style="position:absolute;top:clamp(20px,4vw,44px);right:clamp(16px,3vw,40px);width:clamp(90px,10vw,130px);height:clamp(90px,10vw,130px);animation:xg-spin 14s linear infinite">
+        <svg viewBox="0 0 100 100" style="width:100%;height:100%">
+          <defs><path id="xg-circ" d="M 50,50 m -38,0 a 38,38 0 1,1 76,0 a 38,38 0 1,1 -76,0"></path></defs>
+          <circle cx="50" cy="50" r="26" fill="#5B2EE0"></circle>
+          <text style="font-size:10.5px;font-weight:700;letter-spacing:2.5px;font-family:'Space Grotesk',sans-serif" fill="#141414"><textPath href="#xg-circ">LIVING · WORKING · BUILDING · IN THE UK ·</textPath></text>
+          <text x="50" y="57" text-anchor="middle" style="font-size:22px;font-weight:800;font-family:'Unbounded',sans-serif" fill="#D8F34C">X</text>
+        </svg>
+      </div>
+    </div>
+    <aside id="xg-hero-aside" style="background:#5B2EE0;color:#F4F2EC;padding:clamp(28px,4vw,44px);display:flex;flex-direction:column;justify-content:space-between;gap:28px">
+      <div style="display:flex;flex-direction:column;gap:18px">
+        <div>
+          <div style="font-size:11px;letter-spacing:.2em;opacity:.7;font-weight:600">DATE</div>
+          <div style="font-family:'Unbounded',sans-serif;font-weight:600;font-size:20px">26 Sept 2026</div>
+        </div>
+        <div>
+          <div style="font-size:11px;letter-spacing:.2em;opacity:.7;font-weight:600">TIME</div>
+          <div style="font-family:'Unbounded',sans-serif;font-weight:600;font-size:20px">2:00 PM</div>
+        </div>
+        <div>
+          <div style="font-size:11px;letter-spacing:.2em;opacity:.7;font-weight:600">VENUE</div>
+          <div style="font-family:'Unbounded',sans-serif;font-weight:600;font-size:20px">[Venue], Leeds</div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;letter-spacing:.2em;opacity:.7;font-weight:600;margin-bottom:10px">THE CONVERSATION STARTS IN</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+          <div style="background:#141414;padding:10px 6px;text-align:center"><div data-cd="dd" style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:20px;color:#D8F34C">00</div><div style="font-size:9px;letter-spacing:.14em;opacity:.6">DAYS</div></div>
+          <div style="background:#141414;padding:10px 6px;text-align:center"><div data-cd="hh" style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:20px;color:#D8F34C">00</div><div style="font-size:9px;letter-spacing:.14em;opacity:.6">HRS</div></div>
+          <div style="background:#141414;padding:10px 6px;text-align:center"><div data-cd="mm" style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:20px;color:#D8F34C">00</div><div style="font-size:9px;letter-spacing:.14em;opacity:.6">MIN</div></div>
+          <div style="background:#141414;padding:10px 6px;text-align:center"><div data-cd="ss" style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:20px;color:#D8F34C;animation:xg-blink 2s infinite">00</div><div style="font-size:9px;letter-spacing:.14em;opacity:.6">SEC</div></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:22px">
+          <a href="#newsletter" class="c-press4" style="background:#D8F34C;color:#141414;border:2px solid #141414;text-decoration:none;text-align:center;font-weight:700;font-size:15px;padding:15px;box-shadow:4px 4px 0 #141414">Register Free →</a>
+          <a href="#partner" class="c-aside-ghost" style="background:transparent;color:#F4F2EC;border:2px solid #F4F2EC;text-decoration:none;text-align:center;font-weight:700;font-size:15px;padding:15px">Partner With Us</a>
+        </div>
+      </div>
+    </aside>
+  </div>
+  <div style="overflow:hidden;border-top:2px solid #141414;background:#D8F34C;padding:12px 0;white-space:nowrap">
+    <div id="xg-ticker" style="display:inline-flex;white-space:nowrap">
+      <span style="font-family:'Unbounded',sans-serif;font-weight:600;font-size:15px;letter-spacing:.06em">OPPORTUNITY ✗ COMMUNITY ✗ PURPOSE ✗ CONFIDENCE ✗ DIRECTION ✗ HOME ✗ PROSPERITY ✗ FINDING X ✗&nbsp;</span>
+      <span style="font-family:'Unbounded',sans-serif;font-weight:600;font-size:15px;letter-spacing:.06em">OPPORTUNITY ✗ COMMUNITY ✗ PURPOSE ✗ CONFIDENCE ✗ DIRECTION ✗ HOME ✗ PROSPERITY ✗ FINDING X ✗&nbsp;</span>
+      <span style="font-family:'Unbounded',sans-serif;font-weight:600;font-size:15px;letter-spacing:.06em">OPPORTUNITY ✗ COMMUNITY ✗ PURPOSE ✗ CONFIDENCE ✗ DIRECTION ✗ HOME ✗ PROSPERITY ✗ FINDING X ✗&nbsp;</span>
+    </div>
+  </div>
+</header>
+
+<!-- X STATEMENT -->
+<section data-reveal style="padding:clamp(70px,11vh,130px) clamp(16px,4vw,48px);background:#141414;color:#F4F2EC;border-bottom:2px solid #141414">
+  <div style="max-width:980px;margin:0 auto;text-align:center">
+    <p style="font-family:'Unbounded',sans-serif;font-weight:500;font-size:clamp(20px,2.8vw,36px);line-height:1.4;margin:0">Every year, thousands of us arrive in the UK with degrees, experience, and ambition — searching for something we can't always name.</p>
+    <p style="font-family:'Unbounded',sans-serif;font-weight:800;font-size:clamp(26px,3.6vw,48px);line-height:1.25;margin:40px 0 0">We call it <span style="color:#D8F34C">X</span>. This event is about <span style="color:#5B2EE0;background:#D8F34C;padding:0 12px">finding it</span> — faster.</p>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" data-reveal style="padding:clamp(64px,10vh,120px) clamp(16px,4vw,48px);border-bottom:2px solid #141414">
+  <div style="max-width:1160px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:clamp(32px,5vw,72px)">
+    <div>
+      <div style="display:inline-block;background:#5B2EE0;color:#F4F2EC;font-size:11px;font-weight:700;letter-spacing:.18em;padding:6px 14px;margin-bottom:22px">01 / WHY FINDING X</div>
+      <h2 style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:clamp(28px,3.6vw,46px);line-height:1.08;letter-spacing:-0.02em;margin:0">Hard work was never the whole equation.</h2>
+    </div>
+    <div style="font-size:16px;line-height:1.7;display:flex;flex-direction:column;gap:18px">
+      <p style="margin:0">You did everything right. Strong career back home. Big plans for the new one. Then you landed — and the network you spent a decade building disappeared overnight. The CV that opened doors now gets silence. The rules changed, and nobody handed you the new playbook.</p>
+      <p style="margin:0">Succeeding here isn't about working harder. It's the <mark style="background:#D8F34C;padding:0 4px;font-weight:600">right mindset</mark>, the <mark style="background:#D8F34C;padding:0 4px;font-weight:600">right information</mark>, and the <mark style="background:#D8F34C;padding:0 4px;font-weight:600">right people</mark> — and most of us only find those years in.</p>
+      <p style="margin:0;font-weight:700">Finding X exists to close that gap. One room. No motivational fluff — just practical frameworks, honest stories, and lessons that would otherwise cost you years.</p>
+    </div>
+  </div>
+</section>
+
+<!-- WHY ATTEND -->
+<section data-reveal style="padding:clamp(64px,10vh,120px) clamp(16px,4vw,48px);background:#D8F34C;border-bottom:2px solid #141414">
+  <div style="max-width:1160px;margin:0 auto">
+    <div style="display:inline-block;background:#141414;color:#D8F34C;font-size:11px;font-weight:700;letter-spacing:.18em;padding:6px 14px;margin-bottom:22px">02 / WHY ATTEND</div>
+    <h2 style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:clamp(28px,3.6vw,46px);letter-spacing:-0.02em;margin:0 0 40px">Lessons, not lectures.</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px">
+      {whyCards.map((card) => (
+        <div class="c-press5" style="background:#F4F2EC;border:2px solid #141414;box-shadow:5px 5px 0 #141414;padding:26px;display:flex;flex-direction:column;gap:14px">
+          <div style="font-family:'Unbounded',sans-serif;font-weight:800;font-size:26px;color:#5B2EE0">{card.num}</div>
+          <h3 style="font-family:'Unbounded',sans-serif;font-weight:600;font-size:17px;margin:0">{card.title}</h3>
+          <p style="font-size:14px;line-height:1.6;margin:0">{card.body}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- SPEAKERS -->
+<section id="speakers" data-reveal style="padding:clamp(64px,10vh,120px) clamp(16px,4vw,48px);border-bottom:2px solid #141414">
+  <div style="max-width:1160px;margin:0 auto">
+    <div style="display:inline-block;background:#5B2EE0;color:#F4F2EC;font-size:11px;font-weight:700;letter-spacing:.18em;padding:6px 14px;margin-bottom:22px">03 / SPEAKERS</div>
+    <h2 style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:clamp(28px,3.6vw,46px);letter-spacing:-0.02em;margin:0 0 14px">Voices worth crossing the city for.</h2>
+    <p style="max-width:560px;font-size:15px;line-height:1.6;margin:0 0 40px">Announcements drop soon — register now and be first to know.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:18px">
+      {speakerSlots.map((s) => (
+        <div style="border:2px solid #141414;background:#5B2EE0;aspect-ratio:4/5;position:relative;display:flex;flex-direction:column;justify-content:flex-end">
+          <div style="position:absolute;top:14px;left:14px;background:#D8F34C;border:2px solid #141414;font-size:10px;font-weight:700;letter-spacing:.14em;padding:4px 10px">SOON</div>
+          <div style="position:absolute;top:40%;left:50%;transform:translate(-50%,-50%) rotate(-6deg);font-family:'Unbounded',sans-serif;font-weight:800;font-size:70px;color:rgba(244,242,236,.3)">?</div>
+          <div style="background:#F4F2EC;border-top:2px solid #141414;padding:14px 16px">
+            <div style="font-family:'Unbounded',sans-serif;font-weight:600;font-size:14px">Announced soon</div>
+            <div style="font-size:12px;opacity:.6">{s}</div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- AGENDA -->
+<section id="agenda" data-reveal style="padding:clamp(64px,10vh,120px) clamp(16px,4vw,48px);background:#141414;color:#F4F2EC;border-bottom:2px solid #141414">
+  <div style="max-width:1000px;margin:0 auto">
+    <div style="display:inline-block;background:#D8F34C;color:#141414;font-size:11px;font-weight:700;letter-spacing:.18em;padding:6px 14px;margin-bottom:22px">04 / THE DAY</div>
+    <h2 style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:clamp(28px,3.6vw,46px);letter-spacing:-0.02em;margin:0 0 40px">One afternoon.<br><span style="color:#D8F34C">Years saved.</span></h2>
+    <div style="display:flex;flex-direction:column;border-top:2px solid rgba(244,242,236,.25)">
+      {agenda.map((a) => (
+        <div class="c-row" style="display:grid;grid-template-columns:110px 1fr;gap:22px;padding:26px 10px;border-bottom:2px solid rgba(244,242,236,.25);align-items:baseline">
+          <div style="font-family:'Unbounded',sans-serif;font-weight:600;font-size:14px;color:#D8F34C">{a.time}</div>
+          <div>
+            <h3 style="font-family:'Unbounded',sans-serif;font-weight:600;font-size:clamp(18px,2vw,24px);margin:0 0 6px">{a.title}</h3>
+            <p style="font-size:14px;line-height:1.6;opacity:.7;margin:0">{a.desc}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- WHO IT'S FOR -->
+<section data-reveal style="padding:clamp(64px,10vh,120px) clamp(16px,4vw,48px);border-bottom:2px solid #141414;text-align:center">
+  <div style="max-width:1000px;margin:0 auto">
+    <div style="display:inline-block;background:#5B2EE0;color:#F4F2EC;font-size:11px;font-weight:700;letter-spacing:.18em;padding:6px 14px;margin-bottom:22px">05 / WHO IT'S FOR</div>
+    <h2 style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:clamp(28px,3.6vw,46px);letter-spacing:-0.02em;margin:0 0 36px">Building a life here?<br>This is for you.</h2>
+    <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:14px">
+      {tiltedAudiences.map((aud) => (
+        <span class="c-chip" style={`background:#F4F2EC;border:2px solid #141414;box-shadow:3px 3px 0 #141414;padding:12px 22px;font-size:14px;font-weight:600;transform:rotate(${aud.tilt})`}>{aud.label}</span>
+      ))}
+    </div>
+    <p style="font-size:15px;opacity:.65;margin:34px 0 0">Whatever stage you're at — someone in this room has been there, and got through it.</p>
+  </div>
+</section>
+
+<!-- PARTNER -->
+<section id="partner" data-reveal style="padding:clamp(64px,10vh,120px) clamp(16px,4vw,48px);background:#5B2EE0;color:#F4F2EC;border-bottom:2px solid #141414">
+  <div style="max-width:1160px;margin:0 auto">
+    <div style="display:inline-block;background:#D8F34C;color:#141414;font-size:11px;font-weight:700;letter-spacing:.18em;padding:6px 14px;margin-bottom:22px">06 / PARTNER WITH US</div>
+    <h2 style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:clamp(28px,3.6vw,46px);letter-spacing:-0.02em;margin:0 0 14px;max-width:840px">Invest in the community everyone will want to have backed.</h2>
+    <p style="max-width:660px;font-size:15px;line-height:1.7;opacity:.85;margin:0 0 44px">Finding X partners are early builders of an ecosystem helping African talent thrive in the UK — starting in Leeds.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px;align-items:stretch">
+      {packages.map((p) => (
+        <div style={`background:${p.bg};color:${p.fg};border:2px solid #141414;box-shadow:6px 6px 0 #141414;padding:30px 26px;display:flex;flex-direction:column;gap:16px`}>
+          <div style="font-size:11px;letter-spacing:.2em;font-weight:700;opacity:.7">{p.tier}</div>
+          <div style="font-family:'Unbounded',sans-serif;font-weight:800;font-size:38px">{p.price}</div>
+          <div style="font-size:15px;font-weight:700">{p.tag}</div>
+          <ul style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;font-size:14px;line-height:1.5">
+            {p.benefits.map((b) => (
+              <li style="display:flex;gap:8px"><span style="font-weight:800">✗</span><span>{b}</span></li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+    <a href="mailto:vo@builderscabal.com?subject=Finding%20X%20Partnership%20Enquiry" class="c-press4" style="display:inline-block;margin-top:40px;background:#D8F34C;color:#141414;border:2px solid #141414;box-shadow:4px 4px 0 #141414;text-decoration:none;font-weight:700;font-size:15px;padding:16px 34px">Become a Partner → vo@builderscabal.com</a>
+  </div>
+</section>
+
+<!-- ABOUT BC + VENUE -->
+<section data-reveal style="border-bottom:2px solid #141414;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
+  <div style="padding:clamp(40px,6vw,72px) clamp(16px,4vw,48px);border-right:2px solid #141414">
+    <img src="/assets/bc-logo.png" alt="BuildersCabal" style="height:32px;width:auto;margin-bottom:20px">
+    <h2 style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:clamp(22px,2.6vw,32px);margin:0 0 14px">Connect. Collaborate. Co-create.</h2>
+    <p style="font-size:15px;line-height:1.7;opacity:.75;margin:0 0 20px">BuildersCabal gives Africa's builders the knowledge, networks, and opportunities to scale — across Nigeria, Ghana, Kenya, Rwanda, Uganda and the UK. Finding X is the first step abroad.</p>
+    <a href="https://builderscabal.com" style="color:#5B2EE0;font-weight:700;text-decoration:none;font-size:14px">Visit builderscabal.com →</a>
+  </div>
+  <div id="venue" style="padding:clamp(40px,6vw,72px) clamp(16px,4vw,48px);background:#D8F34C">
+    <div style="display:inline-block;background:#141414;color:#D8F34C;font-size:11px;font-weight:700;letter-spacing:.18em;padding:6px 14px;margin-bottom:20px">07 / VENUE</div>
+    <h2 style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:clamp(22px,2.6vw,32px);margin:0 0 14px">Find your way to us.</h2>
+    <p style="font-size:15px;line-height:1.7;margin:0 0 20px"><strong>[Venue Name]</strong>, Leeds — minutes from Leeds railway station.</p>
+    <div style="height:140px;border:2px solid #141414;background:repeating-linear-gradient(-45deg,#F4F2EC,#F4F2EC 12px,#EDEAE0 12px,#EDEAE0 24px);display:flex;align-items:center;justify-content:center;margin-bottom:18px">
+      <span style="background:#141414;color:#F4F2EC;font-size:11px;letter-spacing:.18em;padding:6px 14px">MAP EMBED</span>
+    </div>
+    <a href="https://maps.google.com/?q=Leeds" class="c-press3" style="display:inline-block;background:#F4F2EC;border:2px solid #141414;box-shadow:3px 3px 0 #141414;color:#141414;text-decoration:none;font-weight:700;font-size:14px;padding:12px 26px">Plan Your Trip</a>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" data-reveal style="padding:clamp(64px,10vh,120px) clamp(16px,4vw,48px);border-bottom:2px solid #141414">
+  <div style="max-width:840px;margin:0 auto">
+    <div style="display:inline-block;background:#5B2EE0;color:#F4F2EC;font-size:11px;font-weight:700;letter-spacing:.18em;padding:6px 14px;margin-bottom:22px">08 / FAQ</div>
+    <h2 style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:clamp(28px,3.6vw,46px);letter-spacing:-0.02em;margin:0 0 32px">Questions, answered.</h2>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      {faqs.map((f, i) => (
+        <div data-faq-item style="border:2px solid #141414;background:#F4F2EC">
+          <button data-faq-btn={i} style="width:100%;display:flex;justify-content:space-between;align-items:center;gap:16px;background:none;border:none;cursor:pointer;padding:18px 20px;text-align:left;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;color:#141414">
+            <span>{f.q}</span>
+            <span data-faq-icon style="font-family:'Unbounded',sans-serif;font-size:18px;color:#5B2EE0">+</span>
+          </button>
+          <p data-faq-a hidden style="margin:0;padding:0 20px 20px;font-size:14px;line-height:1.65;max-width:640px">{f.a}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- NEWSLETTER -->
+<section id="newsletter" style="padding:clamp(70px,11vh,130px) clamp(16px,4vw,48px);background:#141414;color:#F4F2EC;text-align:center;border-bottom:2px solid #141414">
+  <h2 style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:clamp(24px,3.4vw,44px);letter-spacing:-0.02em;margin:0 0 12px">The journey doesn't end<br>when the <span style="color:#D8F34C">event</span> does.</h2>
+  <p style="font-size:15px;opacity:.7;margin:0 0 32px">Be first to hear about speakers, future editions, and BuildersCabal opportunities across the UK.</p>
+  <div id="xg-subscribed" hidden style="font-family:'Unbounded',sans-serif;font-weight:600;font-size:18px;color:#D8F34C">You're on the list. See you in Leeds. ✗</div>
+  <form id="xg-newsform" style="display:flex;flex-wrap:wrap;justify-content:center;gap:12px;max-width:540px;margin:0 auto">
+    <input type="email" required placeholder="you@email.com" style="flex:1;min-width:240px;padding:15px 20px;border:2px solid #F4F2EC;font-size:15px;font-family:'Space Grotesk',sans-serif;background:transparent;color:#F4F2EC;outline:none">
+    <button type="submit" class="c-news" style="background:#D8F34C;color:#141414;border:2px solid #D8F34C;cursor:pointer;font-weight:700;font-size:15px;padding:15px 28px;font-family:'Space Grotesk',sans-serif;box-shadow:4px 4px 0 #5B2EE0">Keep Me Posted</button>
+  </form>
+</section>
+
+<!-- FOOTER -->
+<footer style="padding:40px clamp(16px,4vw,48px);background:#141414;color:#F4F2EC">
+  <div style="max-width:1160px;margin:0 auto;display:flex;flex-wrap:wrap;justify-content:space-between;gap:28px;align-items:flex-start">
+    <div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <img src="/assets/bc-logo.png" alt="BuildersCabal" style="height:18px;width:auto;filter:invert(1)">
+        <span style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:14px">FINDING<span style="color:#D8F34C">X</span></span>
+      </div>
+      <div style="font-size:12px;opacity:.5">Living, Working &amp; Building in the UK<br>A product of BuildersCabal</div>
+    </div>
+    <div style="font-size:12px;line-height:2;opacity:.6">hi@builderscabal.com<br>vo@builderscabal.com<br>+44 7354 617100</div>
+    <div style="display:flex;gap:14px;font-size:12px;font-weight:700">
+      <a href="https://linkedin.com/company/builderscabal" class="c-fl" style="color:#F4F2EC;text-decoration:none;border:2px solid rgba(244,242,236,.3);padding:8px 14px">LinkedIn</a>
+      <a href="https://x.com/builderscabal" class="c-fl" style="color:#F4F2EC;text-decoration:none;border:2px solid rgba(244,242,236,.3);padding:8px 14px">X</a>
+      <a href="https://instagram.com/builderscabal" class="c-fl" style="color:#F4F2EC;text-decoration:none;border:2px solid rgba(244,242,236,.3);padding:8px 14px">Instagram</a>
+    </div>
+  </div>
+  <div style="max-width:1160px;margin:32px auto 0;padding-top:18px;border-top:2px solid rgba(244,242,236,.15);display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;font-size:11px;opacity:.4">
+    <span>© 2026 Seedling Technology. All rights reserved.</span>
+    <span>Connect. Collaborate. Co-create.</span>
+  </div>
+</footer>
+
+<script define:vars={{ EVENT_DATE_ISO }}>
+  // ---- Countdown ----
+  const target = new Date(EVENT_DATE_ISO).getTime();
+  const pad = (n) => String(n).padStart(2, '0');
+  const cd = {
+    dd: document.querySelector('[data-cd="dd"]'),
+    hh: document.querySelector('[data-cd="hh"]'),
+    mm: document.querySelector('[data-cd="mm"]'),
+    ss: document.querySelector('[data-cd="ss"]'),
+  };
+  const tick = () => {
+    const diff = Math.max(0, target - Date.now());
+    cd.dd.textContent = pad(Math.floor(diff / 86400000));
+    cd.hh.textContent = pad(Math.floor(diff / 3600000) % 24);
+    cd.mm.textContent = pad(Math.floor(diff / 60000) % 60);
+    cd.ss.textContent = pad(Math.floor(diff / 1000) % 60);
+  };
+  tick();
+  setInterval(tick, 1000);
+
+  // ---- Mobile menu ----
+  const burger = document.getElementById('xgnav-burger');
+  const menu = document.getElementById('xg-menu');
+  const setMenu = (open) => {
+    menu.classList.toggle('open', open);
+    burger.textContent = open ? '✕' : '☰';
+  };
+  burger.addEventListener('click', () => setMenu(!menu.classList.contains('open')));
+  menu.querySelectorAll('[data-menu-link]').forEach((a) => a.addEventListener('click', () => setMenu(false)));
+  window.matchMedia('(max-width: 840px)').addEventListener('change', () => setMenu(false));
+
+  // ---- FAQ accordion (single open, lime bg when open) ----
+  const faqBtns = [...document.querySelectorAll('[data-faq-btn]')];
+  faqBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const item = btn.closest('[data-faq-item]');
+      const answer = btn.nextElementSibling;
+      const wasOpen = !answer.hidden;
+      faqBtns.forEach((b) => {
+        b.nextElementSibling.hidden = true;
+        b.querySelector('[data-faq-icon]').textContent = '+';
+        b.closest('[data-faq-item]').style.background = '#F4F2EC';
+      });
+      if (!wasOpen) {
+        answer.hidden = false;
+        btn.querySelector('[data-faq-icon]').textContent = '−';
+        item.style.background = '#D8F34C';
+      }
+    });
+  });
+
+  // ---- Newsletter ----
+  const form = document.getElementById('xg-newsform');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    form.style.display = 'none';
+    document.getElementById('xg-subscribed').hidden = false;
+  });
+
+  // ---- GSAP motion ----
+  const words = ['OPPORTUNITY', 'COMMUNITY', 'PURPOSE', 'CONFIDENCE', 'DIRECTION', 'HOME', 'PROSPERITY', 'X'];
+  let wordIdx = 0;
+  const wait = (cb) => (window.gsap && window.ScrollTrigger) ? cb() : setTimeout(() => wait(cb), 120);
+  wait(() => {
+    const gsap = window.gsap;
+    gsap.registerPlugin(window.ScrollTrigger);
+    // hero stacked lines intro
+    const h1 = document.getElementById('xg-h1');
+    if (h1) gsap.fromTo(h1.children, { x: -60, opacity: 0 }, { x: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: 'power4.out' });
+    // rotating stamp word
+    setInterval(() => {
+      const el = document.getElementById('xg-rotword');
+      if (!el) return;
+      gsap.to(el, { scale: 0.6, opacity: 0, rotate: 6, duration: 0.22, ease: 'power2.in', onComplete: () => {
+        wordIdx = (wordIdx + 1) % words.length;
+        el.textContent = words[wordIdx];
+        gsap.fromTo(el, { scale: 1.25, opacity: 0, rotate: -8 }, { scale: 1, opacity: 1, rotate: -2, duration: 0.34, ease: 'back.out(2.2)' });
+      }});
+    }, 2200);
+    // ticker strip
+    const ticker = document.getElementById('xg-ticker');
+    if (ticker) {
+      gsap.to(ticker, { xPercent: -33.34, ease: 'none', duration: 18, repeat: -1 });
+    }
+    // section reveals with hard clip wipe
+    gsap.utils.toArray('[data-reveal]').forEach((el) => {
+      gsap.fromTo(el, { clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0 0 0% 0)', duration: 0.9, ease: 'power3.inOut',
+        scrollTrigger: { trigger: el, start: 'top 85%' } });
+    });
+  });
+</script>
+</body>
+</html>
