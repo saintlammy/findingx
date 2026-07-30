@@ -41,6 +41,13 @@ const C = {
   chip: '#E8E8F4',    // lowest partner tier
 };
 
+// Typefaces. Unbounded carries the display voice, Space Grotesk does the
+// reading. Kept beside the palette so both live in one place.
+const F = {
+  sans: "'Space Grotesk', sans-serif",
+  display: "'Unbounded', sans-serif",
+};
+
 const registerHref = REGISTER_URL || '#newsletter';
 const registerIsExternal = Boolean(REGISTER_URL);
 
@@ -89,15 +96,21 @@ const eventSchema = {
 <link rel="icon" type="image/png" href="/assets/bc-logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script type="application/ld+json" set:html={JSON.stringify(eventSchema)} />
-<style is:global define:vars={{ ink: C.ink, blue: C.blue, orange: C.orange, white: C.white, paper: C.paper }}>
+<style is:global define:vars={{ ink: C.ink, blue: C.blue, orange: C.orange, white: C.white, paper: C.paper, sans: F.sans, display: F.display }}>
 html{scroll-behavior:smooth}
-body{margin:0;background:var(--white);color:var(--ink);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased}
+/* Space Grotesk for reading, Unbounded for display. Set once here so the two
+   families never have to be repeated in an inline style. */
+body{margin:0;background:var(--white);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
 a{color:var(--blue)}
 a:hover{color:var(--orange)}
+
+h1,h2,h3,.fx-display{font-family:var(--display)}
+/* The sizer only reserves the right width if it matches the stamp's face. */
+#fx-word-sizer{font-family:var(--display)}
 
 @keyframes fx-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 @keyframes fx-blink{0%,100%{opacity:1}50%{opacity:.35}}
@@ -168,7 +181,7 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--orange);outline-off
 <nav style={`position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px clamp(16px,4vw,48px);background:${C.white};border-bottom:2px solid ${C.ink}`}>
   <a href="#top" style={`display:flex;align-items:center;gap:10px;text-decoration:none;color:${C.ink}`}>
     <img src="/assets/bc-logo.png" alt="BuildersCabal" width="120" height="66" style="height:20px;width:auto">
-    <span style="font-weight:700;font-size:15px;letter-spacing:-0.01em">FINDING<span style={`color:${C.orange}`}>X</span></span>
+    <span class="fx-display" style="font-weight:700;font-size:15px;letter-spacing:-0.01em">FINDING<span style={`color:${C.orange}`}>X</span></span>
   </a>
   <div style="display:flex;align-items:center;gap:clamp(10px,2vw,24px)">
     <div id="fxnav-links">
@@ -215,8 +228,12 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--orange);outline-off
           <svg viewBox="0 0 100 100" style="width:100%;height:100%" aria-hidden="true">
             <defs><path id="fx-circ" d="M 50,50 m -38,0 a 38,38 0 1,1 76,0 a 38,38 0 1,1 -76,0"></path></defs>
             <circle cx="50" cy="50" r="26" fill={C.blue}></circle>
-            <text style="font-size:10px;font-weight:600;letter-spacing:2.4px;font-family:'DM Sans',sans-serif" fill={C.ink}><textPath href="#fx-circ">LIVING · WORKING · BUILDING · IN THE UK ·</textPath></text>
-            <text x="50" y="58" text-anchor="middle" style="font-size:24px;font-weight:700;font-family:'DM Sans',sans-serif" fill={C.orange}>X</text>
+            {/* textLength pins the ring copy to the circle's own length (2*pi*38 = 238.8
+                user units) so it fits exactly rather than wrapping back over itself when
+                the typeface changes. lengthAdjust only opens the gaps between glyphs, so
+                the letterforms themselves are not stretched. */}
+            <text textLength="230" lengthAdjust="spacing" style={`font-size:9px;font-weight:600;font-family:${F.sans}`} fill={C.ink}><textPath href="#fx-circ">LIVING · WORKING · BUILDING · IN THE UK ·</textPath></text>
+            <text x="50" y="58" text-anchor="middle" style={`font-size:22px;font-weight:700;font-family:${F.display}`} fill={C.orange}>X</text>
           </svg>
         </div>
       </div>
@@ -226,28 +243,28 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--orange);outline-off
       <div style="display:flex;flex-direction:column;gap:18px">
         <div>
           <div style="font-size:11px;letter-spacing:.18em;opacity:.85;font-weight:500">DATE</div>
-          <div style="font-weight:600;font-size:19px">{EVENT_DATE_LABEL}</div>
+          <div class="fx-display" style="font-weight:600;font-size:19px">{EVENT_DATE_LABEL}</div>
         </div>
         <div>
           <div style="font-size:11px;letter-spacing:.18em;opacity:.85;font-weight:500">TIME</div>
-          <div style="font-weight:600;font-size:19px">{EVENT_TIME_LABEL}</div>
+          <div class="fx-display" style="font-weight:600;font-size:19px">{EVENT_TIME_LABEL}</div>
         </div>
         <div>
           <div style="font-size:11px;letter-spacing:.18em;opacity:.85;font-weight:500">VENUE</div>
-          <div style="font-weight:600;font-size:19px">{EVENT_VENUE_LABEL}</div>
+          <div class="fx-display" style="font-weight:600;font-size:19px">{EVENT_VENUE_LABEL}</div>
         </div>
       </div>
       <div>
         <div id="fx-cd-label" style="font-size:11px;letter-spacing:.18em;opacity:.85;font-weight:500;margin-bottom:10px">THE CONVERSATION STARTS IN</div>
-        <div id="fx-cd-over" hidden style={`font-weight:600;font-size:17px;line-height:1.45;color:${C.orange}`}>
+        <div id="fx-cd-over" class="fx-display" hidden style={`font-weight:600;font-size:17px;line-height:1.45;color:${C.orange}`}>
           Thanks for joining us in Leeds.<br>
           <span style={`font-weight:400;font-size:14px;color:${C.white}`}>Future editions are announced to the list below.</span>
         </div>
         <div id="fx-cd-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
-          <div style={`background:${C.ink};padding:11px 6px;text-align:center`}><div data-cd="dd" style={`font-weight:700;font-size:20px;color:${C.orange}`}>00</div><div style="font-size:9px;letter-spacing:.12em;opacity:.8">DAYS</div></div>
-          <div style={`background:${C.ink};padding:11px 6px;text-align:center`}><div data-cd="hh" style={`font-weight:700;font-size:20px;color:${C.orange}`}>00</div><div style="font-size:9px;letter-spacing:.12em;opacity:.8">HRS</div></div>
-          <div style={`background:${C.ink};padding:11px 6px;text-align:center`}><div data-cd="mm" style={`font-weight:700;font-size:20px;color:${C.orange}`}>00</div><div style="font-size:9px;letter-spacing:.12em;opacity:.8">MIN</div></div>
-          <div style={`background:${C.ink};padding:11px 6px;text-align:center`}><div data-cd="ss" style={`font-weight:700;font-size:20px;color:${C.orange};animation:fx-blink 2s infinite`}>00</div><div style="font-size:9px;letter-spacing:.12em;opacity:.8">SEC</div></div>
+          <div style={`background:${C.ink};padding:11px 6px;text-align:center`}><div data-cd="dd" class="fx-display" style={`font-weight:700;font-size:20px;color:${C.orange}`}>00</div><div style="font-size:9px;letter-spacing:.12em;opacity:.8">DAYS</div></div>
+          <div style={`background:${C.ink};padding:11px 6px;text-align:center`}><div data-cd="hh" class="fx-display" style={`font-weight:700;font-size:20px;color:${C.orange}`}>00</div><div style="font-size:9px;letter-spacing:.12em;opacity:.8">HRS</div></div>
+          <div style={`background:${C.ink};padding:11px 6px;text-align:center`}><div data-cd="mm" class="fx-display" style={`font-weight:700;font-size:20px;color:${C.orange}`}>00</div><div style="font-size:9px;letter-spacing:.12em;opacity:.8">MIN</div></div>
+          <div style={`background:${C.ink};padding:11px 6px;text-align:center`}><div data-cd="ss" class="fx-display" style={`font-weight:700;font-size:20px;color:${C.orange};animation:fx-blink 2s infinite`}>00</div><div style="font-size:9px;letter-spacing:.12em;opacity:.8">SEC</div></div>
         </div>
         <div style="display:flex;flex-direction:column;gap:10px;margin-top:22px">
           <a
@@ -343,7 +360,7 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--orange);outline-off
     <div style="display:flex;flex-direction:column;border-top:2px solid rgba(255,255,255,.22)">
       {agenda.map((a) => (
         <div class="fx-row" style="display:grid;grid-template-columns:110px 1fr;gap:22px;padding:26px 10px;border-bottom:2px solid rgba(255,255,255,.22);align-items:baseline">
-          <div style={`font-weight:600;font-size:14px;color:${C.orange}`}>{a.time}</div>
+          <div class="fx-display" style={`font-weight:600;font-size:14px;color:${C.orange}`}>{a.time}</div>
           <div>
             <h3 style="font-weight:600;font-size:clamp(18px,2vw,23px);margin:0 0 6px">{a.title}</h3>
             <p style="font-size:14px;line-height:1.65;opacity:.85;margin:0">{a.desc}</p>
@@ -380,7 +397,7 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--orange);outline-off
             <div style={`position:absolute;top:-13px;left:22px;background:${C.orange};color:${C.ink};border:2px solid ${C.ink};font-size:10px;font-weight:700;letter-spacing:.14em;padding:4px 10px`}>RECOMMENDED</div>
           )}
           <div style="font-size:11px;letter-spacing:.16em;font-weight:600;opacity:.85">{p.tier}</div>
-          <div style="font-weight:700;font-size:38px">{p.price}</div>
+          <div class="fx-display" style="font-weight:700;font-size:38px">{p.price}</div>
           <div style="font-size:15px;font-weight:600">{p.tag}</div>
           <ul style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:9px;font-size:14px;line-height:1.55">
             {p.benefits.map((b) => (
@@ -404,7 +421,8 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--orange);outline-off
 <section data-reveal style={`border-bottom:2px solid ${C.ink};display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))`}>
   <div style={`padding:clamp(40px,6vw,72px) clamp(16px,4vw,48px);border-right:2px solid ${C.ink}`}>
     <img src="/assets/bc-logo.png" alt="BuildersCabal" width="120" height="66" style="height:32px;width:auto;margin-bottom:20px">
-    <h2 style="font-weight:700;font-size:clamp(22px,2.6vw,32px);margin:0 0 14px;letter-spacing:-0.02em">Connect. Collaborate. Co-create.</h2>
+    {/* Co-create carries a real hyphen, so keep it whole or the line breaks mid-word. */}
+    <h2 style="font-weight:700;font-size:clamp(22px,2.6vw,32px);margin:0 0 14px;letter-spacing:-0.02em;text-wrap:balance">Connect. Collaborate. <span style="white-space:nowrap">Co-create.</span></h2>
     <p style="font-size:15px;line-height:1.75;opacity:.85;margin:0 0 20px">BuildersCabal provides Africa's builders with the knowledge, networks, and opportunities needed to build and scale successful technology companies across Nigeria, Ghana, Kenya, Rwanda, Uganda and the UK. Finding X is the first step abroad.</p>
     <a href="https://builderscabal.com" style={`color:${C.blue};font-weight:600;text-decoration:none;font-size:14px`}>Visit builderscabal.com →</a>
   </div>
@@ -430,7 +448,7 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--orange);outline-off
             data-faq-btn={i}
             aria-expanded="false"
             aria-controls={`fx-faq-a-${i}`}
-            style={`width:100%;display:flex;justify-content:space-between;align-items:center;gap:16px;background:none;border:none;cursor:pointer;padding:19px 20px;text-align:left;font-family:'DM Sans',sans-serif;font-weight:600;font-size:16px;color:${C.ink};min-height:44px`}
+            style={`width:100%;display:flex;justify-content:space-between;align-items:center;gap:16px;background:none;border:none;cursor:pointer;padding:19px 20px;text-align:left;font-family:${F.sans};font-weight:600;font-size:16px;color:${C.ink};min-height:44px`}
           >
             <span>{f.q}</span>
             <span data-faq-icon aria-hidden="true" style={`font-size:20px;color:${C.blue}`}>+</span>
@@ -447,7 +465,7 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--orange);outline-off
 <section id="newsletter" style={`padding:clamp(70px,11vh,130px) clamp(16px,4vw,48px);background:${C.ink};color:${C.white};text-align:center;border-bottom:2px solid ${C.ink}`}>
   <h2 style="font-weight:700;font-size:clamp(24px,3.4vw,44px);letter-spacing:-0.025em;margin:0 0 12px">The journey doesn't end<br>when the <span style={`color:${C.orange}`}>event</span> does.</h2>
   <p style="font-size:15px;opacity:.85;margin:0 0 32px">Be first to hear about speakers, future editions, and BuildersCabal opportunities across the UK.</p>
-  <div id="fx-subscribed" hidden style={`font-weight:600;font-size:18px;color:${C.orange}`}>You're on the list. See you in Leeds.</div>
+  <div id="fx-subscribed" class="fx-display" hidden style={`font-weight:600;font-size:18px;color:${C.orange}`}>You're on the list. See you in Leeds.</div>
   <form id="fx-newsform" novalidate style="max-width:540px;margin:0 auto;text-align:left">
     <label for="fx-email" style="display:block;font-size:13px;font-weight:600;letter-spacing:.04em;margin-bottom:8px">Email address</label>
     <div style="display:flex;flex-wrap:wrap;gap:12px">
@@ -459,9 +477,9 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--orange);outline-off
         autocomplete="email"
         aria-describedby="fx-email-error"
         placeholder="you@email.com"
-        style={`flex:1;min-width:240px;padding:16px 20px;border:2px solid ${C.white};font-size:15px;font-family:'DM Sans',sans-serif;background:transparent;color:${C.white};outline:none`}
+        style={`flex:1;min-width:240px;padding:16px 20px;border:2px solid ${C.white};font-size:15px;font-family:${F.sans};background:transparent;color:${C.white};outline:none`}
       >
-      <button type="submit" class="fx-press" style={`background:${C.orange};color:${C.ink};border:2px solid ${C.orange};cursor:pointer;font-weight:600;font-size:15px;padding:16px 28px;font-family:'DM Sans',sans-serif;box-shadow:4px 4px 0 ${C.blue}`}>Keep Me Posted</button>
+      <button type="submit" class="fx-press" style={`background:${C.orange};color:${C.ink};border:2px solid ${C.orange};cursor:pointer;font-weight:600;font-size:15px;padding:16px 28px;font-family:${F.sans};box-shadow:4px 4px 0 ${C.blue}`}>Keep Me Posted</button>
     </div>
     <p id="fx-email-error" role="alert" hidden style={`margin:10px 0 0;font-size:13px;font-weight:600;color:${C.orange}`}></p>
   </form>
@@ -473,7 +491,7 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--orange);outline-off
     <div>
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
         <span style={`background:${C.white};padding:6px 9px;display:inline-flex`}><img src="/assets/bc-logo.png" alt="BuildersCabal" width="120" height="66" style="height:18px;width:auto"></span>
-        <span style="font-weight:700;font-size:15px">FINDING<span style={`color:${C.orange}`}>X</span></span>
+        <span class="fx-display" style="font-weight:700;font-size:15px">FINDING<span style={`color:${C.orange}`}>X</span></span>
       </div>
       <div style="font-size:12.5px;opacity:.85;line-height:1.7">Living, Working &amp; Building in the UK<br>A product of BuildersCabal</div>
     </div>
