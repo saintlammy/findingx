@@ -1,13 +1,37 @@
 ---
-// Direction C — The Crossing
+// Direction C - The Crossing
 import Switcher from '../components/Switcher.astro';
-import { META, EVENT_DATE_ISO, agenda, faqs, audiences, packageBenefits } from '../content';
+import {
+  META,
+  EVENT_DATE_ISO,
+  EVENT_DURATION_MINUTES,
+  SITE_URL,
+  REGISTER_URL,
+  NEWSLETTER_ENDPOINT,
+  CONTACT_EMAIL,
+  agenda,
+  faqs,
+  audiences,
+  packageBenefits,
+} from '../content';
+
+// The design A/C switcher is a review aid, not part of the product. Keeping it
+// out of the production build also stops /crossing shipping a nav to /.
+const showSwitcher = import.meta.env.DEV;
+
+// Until a ticket platform is chosen, the register CTA falls back to the
+// newsletter section rather than pointing at a URL that does not exist.
+const registerHref = REGISTER_URL || '#newsletter';
+const registerIsExternal = Boolean(REGISTER_URL);
+
+const canonicalUrl = new URL('/crossing', SITE_URL).href;
+const ogImageUrl = new URL('/assets/og.png', SITE_URL).href;
 
 const whyCards = [
-  { num: '01', title: 'Lessons, not lectures', body: "No theory, no TED-talk polish. Real people who navigated the exact journey you're on — sharing what worked, what didn't, and what they'd do differently." },
+  { num: '01', title: 'Lessons, not lectures', body: "No theory, no TED-talk polish. Real people who navigated the exact journey you're on. They share what worked, what didn't, and what they'd do differently." },
   { num: '02', title: 'Your network, rebuilt', body: 'The room is the product. Founders, operators, advisors, and investors who look like you and have been where you are.' },
-  { num: '03', title: 'The playbook, decoded', body: 'The UK job market, workplace culture, and the unwritten systems that create opportunity — explained by people who cracked them.' },
-  { num: '04', title: 'A community that continues', body: "Your entry into BuildersCabal's growing UK community — the conversations keep going long after the chairs are stacked." },
+  { num: '03', title: 'The playbook, decoded', body: 'The UK job market, workplace culture, and the unwritten systems that create opportunity, explained by people who cracked them.' },
+  { num: '04', title: 'A community that continues', body: "Your entry into BuildersCabal's growing UK community, where the conversations keep going long after the chairs are stacked." },
 ];
 
 const speakerSlots = ['Fireside guest', 'Panelist', 'Panelist', 'Panelist'];
@@ -36,11 +60,24 @@ const navLinks = [
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{META.title}</title>
 <meta name="description" content={META.description}>
+<link rel="canonical" href={canonicalUrl}>
 <meta property="og:title" content={META.title}>
 <meta property="og:description" content={META.description}>
 <meta property="og:type" content="website">
+<meta property="og:url" content={canonicalUrl}>
+<meta property="og:site_name" content="Finding X">
+<meta property="og:locale" content="en_GB">
+<meta property="og:image" content={ogImageUrl}>
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Finding X. Living, Working & Building in the UK. 26 September 2026, Leeds.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content={META.title}>
+<meta name="twitter:description" content={META.description}>
+<meta name="twitter:image" content={ogImageUrl}>
 <link rel="icon" type="image/png" href="/assets/bc-logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
@@ -95,10 +132,15 @@ nav{padding-left:12px !important;padding-right:12px !important}
 .c-fl{transition:border-color .15s,color .15s}
 .c-fl:hover{border-color:#D8F34C !important;color:#D8F34C !important}
 [data-faq-a][hidden]{display:none}
+/* The input sets outline:none, so restore a visible keyboard focus ring. */
+#xg-email::placeholder{color:#9a9a9a;opacity:1}
+#xg-email:focus-visible{outline:3px solid #D8F34C;outline-offset:2px}
+#xg-newsform.is-invalid #xg-email{border-color:#D8F34C}
+a:focus-visible,button:focus-visible{outline:3px solid #5B2EE0;outline-offset:2px}
 </style>
 </head>
 <body>
-<Switcher active="c" />
+{showSwitcher && <Switcher active="c" />}
 
 <!-- NAV -->
 <nav style="position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px clamp(16px,4vw,48px);background:#F4F2EC;border-bottom:2px solid #141414">
@@ -112,8 +154,15 @@ nav{padding-left:12px !important;padding-right:12px !important}
         <a href={l.href} class="c-nl" style="color:#141414;text-decoration:none;font-size:13px;font-weight:600">{l.label}</a>
       ))}
     </div>
-    <a href="#newsletter" class="c-press3 c-nav-cta" style="background:#D8F34C;color:#141414;border:2px solid #141414;text-decoration:none;font-weight:700;font-size:13px;padding:9px 20px;box-shadow:3px 3px 0 #141414">Register Free</a>
-    <button id="xgnav-burger" aria-label="Menu" style="background:#F4F2EC;border:2px solid #141414;cursor:pointer;padding:8px 11px;font-size:15px;line-height:1;color:#141414;min-height:38px;box-shadow:2px 2px 0 #141414">☰</button>
+    <a
+      href={registerHref}
+      data-register
+      target={registerIsExternal ? '_blank' : undefined}
+      rel={registerIsExternal ? 'noopener' : undefined}
+      class="c-press3 c-nav-cta"
+      style="background:#D8F34C;color:#141414;border:2px solid #141414;text-decoration:none;font-weight:700;font-size:13px;padding:9px 20px;box-shadow:3px 3px 0 #141414"
+    >Register Free</a>
+    <button id="xgnav-burger" aria-label="Menu" aria-expanded="false" aria-controls="xg-menu" style="background:#F4F2EC;border:2px solid #141414;cursor:pointer;padding:8px 11px;font-size:15px;line-height:1;color:#141414;min-height:38px;box-shadow:2px 2px 0 #141414">☰</button>
   </div>
   <div id="xg-menu" style="position:absolute;top:100%;left:0;right:0;background:#F4F2EC;border-bottom:2px solid #141414;flex-direction:column;padding:6px 20px 14px">
     {navLinks.map((l, i) => (
@@ -159,15 +208,23 @@ nav{padding-left:12px !important;padding-right:12px !important}
         </div>
       </div>
       <div>
-        <div style="font-size:11px;letter-spacing:.2em;opacity:.7;font-weight:600;margin-bottom:10px">THE CONVERSATION STARTS IN</div>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+        <div id="xg-cd-label" style="font-size:11px;letter-spacing:.2em;opacity:.7;font-weight:600;margin-bottom:10px">THE CONVERSATION STARTS IN</div>
+        <div id="xg-cd-over" hidden style="font-family:'Unbounded',sans-serif;font-weight:600;font-size:17px;line-height:1.4;color:#D8F34C">Thanks for joining us in Leeds.<br><span style="font-family:'Space Grotesk',sans-serif;font-weight:400;font-size:14px;color:#F4F2EC">Future editions are announced to the list below.</span></div>
+        <div id="xg-cd-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
           <div style="background:#141414;padding:10px 6px;text-align:center"><div data-cd="dd" style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:20px;color:#D8F34C">00</div><div style="font-size:9px;letter-spacing:.14em;opacity:.6">DAYS</div></div>
           <div style="background:#141414;padding:10px 6px;text-align:center"><div data-cd="hh" style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:20px;color:#D8F34C">00</div><div style="font-size:9px;letter-spacing:.14em;opacity:.6">HRS</div></div>
           <div style="background:#141414;padding:10px 6px;text-align:center"><div data-cd="mm" style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:20px;color:#D8F34C">00</div><div style="font-size:9px;letter-spacing:.14em;opacity:.6">MIN</div></div>
           <div style="background:#141414;padding:10px 6px;text-align:center"><div data-cd="ss" style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:20px;color:#D8F34C;animation:xg-blink 2s infinite">00</div><div style="font-size:9px;letter-spacing:.14em;opacity:.6">SEC</div></div>
         </div>
         <div style="display:flex;flex-direction:column;gap:10px;margin-top:22px">
-          <a href="#newsletter" class="c-press4" style="background:#D8F34C;color:#141414;border:2px solid #141414;text-decoration:none;text-align:center;font-weight:700;font-size:15px;padding:15px;box-shadow:4px 4px 0 #141414">Register Free →</a>
+          <a
+            href={registerHref}
+            data-register
+            target={registerIsExternal ? '_blank' : undefined}
+            rel={registerIsExternal ? 'noopener' : undefined}
+            class="c-press4"
+            style="background:#D8F34C;color:#141414;border:2px solid #141414;text-decoration:none;text-align:center;font-weight:700;font-size:15px;padding:15px;box-shadow:4px 4px 0 #141414"
+          >Register Free →</a>
           <a href="#partner" class="c-aside-ghost" style="background:transparent;color:#F4F2EC;border:2px solid #F4F2EC;text-decoration:none;text-align:center;font-weight:700;font-size:15px;padding:15px">Partner With Us</a>
         </div>
       </div>
@@ -185,8 +242,8 @@ nav{padding-left:12px !important;padding-right:12px !important}
 <!-- X STATEMENT -->
 <section data-reveal style="padding:clamp(70px,11vh,130px) clamp(16px,4vw,48px);background:#141414;color:#F4F2EC;border-bottom:2px solid #141414">
   <div style="max-width:980px;margin:0 auto;text-align:center">
-    <p style="font-family:'Unbounded',sans-serif;font-weight:500;font-size:clamp(20px,2.8vw,36px);line-height:1.4;margin:0">Every year, thousands of us arrive in the UK with degrees, experience, and ambition — searching for something we can't always name.</p>
-    <p style="font-family:'Unbounded',sans-serif;font-weight:800;font-size:clamp(26px,3.6vw,48px);line-height:1.25;margin:40px 0 0">We call it <span style="color:#D8F34C">X</span>. This event is about <span style="color:#5B2EE0;background:#D8F34C;padding:0 12px">finding it</span> — faster.</p>
+    <p style="font-family:'Unbounded',sans-serif;font-weight:500;font-size:clamp(20px,2.8vw,36px);line-height:1.4;margin:0">Every year, thousands of us arrive in the UK with degrees, experience, and ambition, searching for something we can't always name.</p>
+    <p style="font-family:'Unbounded',sans-serif;font-weight:800;font-size:clamp(26px,3.6vw,48px);line-height:1.25;margin:40px 0 0">We call it <span style="color:#D8F34C">X</span>. This event is about <span style="color:#5B2EE0;background:#D8F34C;padding:0 12px">finding it</span>, faster.</p>
   </div>
 </section>
 
@@ -198,9 +255,9 @@ nav{padding-left:12px !important;padding-right:12px !important}
       <h2 style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:clamp(28px,3.6vw,46px);line-height:1.08;letter-spacing:-0.02em;margin:0">Hard work was never the whole equation.</h2>
     </div>
     <div style="font-size:16px;line-height:1.7;display:flex;flex-direction:column;gap:18px">
-      <p style="margin:0">You did everything right. Strong career back home. Big plans for the new one. Then you landed — and the network you spent a decade building disappeared overnight. The CV that opened doors now gets silence. The rules changed, and nobody handed you the new playbook.</p>
-      <p style="margin:0">Succeeding here isn't about working harder. It's the <mark style="background:#D8F34C;padding:0 4px;font-weight:600">right mindset</mark>, the <mark style="background:#D8F34C;padding:0 4px;font-weight:600">right information</mark>, and the <mark style="background:#D8F34C;padding:0 4px;font-weight:600">right people</mark> — and most of us only find those years in.</p>
-      <p style="margin:0;font-weight:700">Finding X exists to close that gap. One room. No motivational fluff — just practical frameworks, honest stories, and lessons that would otherwise cost you years.</p>
+      <p style="margin:0">You did everything right. Strong career back home. Big plans for the new one. Then you landed, and the network you spent a decade building disappeared overnight. The CV that opened doors now gets silence. The rules changed, and nobody handed you the new playbook.</p>
+      <p style="margin:0">Succeeding here isn't about working harder. It's the <mark style="background:#D8F34C;padding:0 4px;font-weight:600">right mindset</mark>, the <mark style="background:#D8F34C;padding:0 4px;font-weight:600">right information</mark>, and the <mark style="background:#D8F34C;padding:0 4px;font-weight:600">right people</mark>. Most of us only find those years in.</p>
+      <p style="margin:0;font-weight:700">Finding X exists to close that gap. One room. No motivational fluff, just practical frameworks, honest stories, and lessons that would otherwise cost you years.</p>
     </div>
   </div>
 </section>
@@ -227,7 +284,7 @@ nav{padding-left:12px !important;padding-right:12px !important}
   <div style="max-width:1160px;margin:0 auto">
     <div style="display:inline-block;background:#5B2EE0;color:#F4F2EC;font-size:11px;font-weight:700;letter-spacing:.18em;padding:6px 14px;margin-bottom:22px">03 / SPEAKERS</div>
     <h2 style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:clamp(28px,3.6vw,46px);letter-spacing:-0.02em;margin:0 0 14px">Voices worth crossing the city for.</h2>
-    <p style="max-width:560px;font-size:15px;line-height:1.6;margin:0 0 40px">Announcements drop soon — register now and be first to know.</p>
+    <p style="max-width:560px;font-size:15px;line-height:1.6;margin:0 0 40px">Announcements drop soon. Register now and be first to know.</p>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:18px">
       {speakerSlots.map((s) => (
         <div style="border:2px solid #141414;background:#5B2EE0;aspect-ratio:4/5;position:relative;display:flex;flex-direction:column;justify-content:flex-end">
@@ -272,7 +329,7 @@ nav{padding-left:12px !important;padding-right:12px !important}
         <span class="c-chip" style={`background:#F4F2EC;border:2px solid #141414;box-shadow:3px 3px 0 #141414;padding:12px 22px;font-size:14px;font-weight:600;transform:rotate(${aud.tilt})`}>{aud.label}</span>
       ))}
     </div>
-    <p style="font-size:15px;opacity:.65;margin:34px 0 0">Whatever stage you're at — someone in this room has been there, and got through it.</p>
+    <p style="font-size:15px;opacity:.65;margin:34px 0 0">Whatever stage you're at, someone in this room has been there, and got through it.</p>
   </div>
 </section>
 
@@ -281,7 +338,7 @@ nav{padding-left:12px !important;padding-right:12px !important}
   <div style="max-width:1160px;margin:0 auto">
     <div style="display:inline-block;background:#D8F34C;color:#141414;font-size:11px;font-weight:700;letter-spacing:.18em;padding:6px 14px;margin-bottom:22px">06 / PARTNER WITH US</div>
     <h2 style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:clamp(28px,3.6vw,46px);letter-spacing:-0.02em;margin:0 0 14px;max-width:840px">Invest in the community everyone will want to have backed.</h2>
-    <p style="max-width:660px;font-size:15px;line-height:1.7;opacity:.85;margin:0 0 44px">Finding X partners are early builders of an ecosystem helping African talent thrive in the UK — starting in Leeds.</p>
+    <p style="max-width:660px;font-size:15px;line-height:1.7;opacity:.85;margin:0 0 44px">Finding X partners are early builders of an ecosystem helping African talent thrive in the UK, starting in Leeds.</p>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px;align-items:stretch">
       {packages.map((p) => (
         <div style={`background:${p.bg};color:${p.fg};border:2px solid #141414;box-shadow:6px 6px 0 #141414;padding:30px 26px;display:flex;flex-direction:column;gap:16px`}>
@@ -290,7 +347,10 @@ nav{padding-left:12px !important;padding-right:12px !important}
           <div style="font-size:15px;font-weight:700">{p.tag}</div>
           <ul style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;font-size:14px;line-height:1.5">
             {p.benefits.map((b) => (
-              <li style="display:flex;gap:8px"><span style="font-weight:800">✗</span><span>{b}</span></li>
+              <li style="display:flex;gap:8px">
+                <span aria-hidden="true" style="font-weight:800">✓</span>
+                <span>{b}</span>
+              </li>
             ))}
           </ul>
         </div>
@@ -305,13 +365,13 @@ nav{padding-left:12px !important;padding-right:12px !important}
   <div style="padding:clamp(40px,6vw,72px) clamp(16px,4vw,48px);border-right:2px solid #141414">
     <img src="/assets/bc-logo.png" alt="BuildersCabal" style="height:32px;width:auto;margin-bottom:20px">
     <h2 style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:clamp(22px,2.6vw,32px);margin:0 0 14px">Connect. Collaborate. Co-create.</h2>
-    <p style="font-size:15px;line-height:1.7;opacity:.75;margin:0 0 20px">BuildersCabal gives Africa's builders the knowledge, networks, and opportunities to scale — across Nigeria, Ghana, Kenya, Rwanda, Uganda and the UK. Finding X is the first step abroad.</p>
+    <p style="font-size:15px;line-height:1.7;opacity:.75;margin:0 0 20px">BuildersCabal gives Africa's builders the knowledge, networks, and opportunities to scale across Nigeria, Ghana, Kenya, Rwanda, Uganda and the UK. Finding X is the first step abroad.</p>
     <a href="https://builderscabal.com" style="color:#5B2EE0;font-weight:700;text-decoration:none;font-size:14px">Visit builderscabal.com →</a>
   </div>
   <div id="venue" style="padding:clamp(40px,6vw,72px) clamp(16px,4vw,48px);background:#D8F34C">
     <div style="display:inline-block;background:#141414;color:#D8F34C;font-size:11px;font-weight:700;letter-spacing:.18em;padding:6px 14px;margin-bottom:20px">07 / VENUE</div>
     <h2 style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:clamp(22px,2.6vw,32px);margin:0 0 14px">Find your way to us.</h2>
-    <p style="font-size:15px;line-height:1.7;margin:0 0 20px"><strong>[Venue Name]</strong>, Leeds — minutes from Leeds railway station.</p>
+    <p style="font-size:15px;line-height:1.7;margin:0 0 20px"><strong>[Venue Name]</strong>, Leeds. Minutes from Leeds railway station.</p>
     <div style="height:140px;border:2px solid #141414;background:repeating-linear-gradient(-45deg,#F4F2EC,#F4F2EC 12px,#EDEAE0 12px,#EDEAE0 24px);display:flex;align-items:center;justify-content:center;margin-bottom:18px">
       <span style="background:#141414;color:#F4F2EC;font-size:11px;letter-spacing:.18em;padding:6px 14px">MAP EMBED</span>
     </div>
@@ -342,10 +402,23 @@ nav{padding-left:12px !important;padding-right:12px !important}
 <section id="newsletter" style="padding:clamp(70px,11vh,130px) clamp(16px,4vw,48px);background:#141414;color:#F4F2EC;text-align:center;border-bottom:2px solid #141414">
   <h2 style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:clamp(24px,3.4vw,44px);letter-spacing:-0.02em;margin:0 0 12px">The journey doesn't end<br>when the <span style="color:#D8F34C">event</span> does.</h2>
   <p style="font-size:15px;opacity:.7;margin:0 0 32px">Be first to hear about speakers, future editions, and BuildersCabal opportunities across the UK.</p>
-  <div id="xg-subscribed" hidden style="font-family:'Unbounded',sans-serif;font-weight:600;font-size:18px;color:#D8F34C">You're on the list. See you in Leeds. ✗</div>
-  <form id="xg-newsform" style="display:flex;flex-wrap:wrap;justify-content:center;gap:12px;max-width:540px;margin:0 auto">
-    <input type="email" required placeholder="you@email.com" style="flex:1;min-width:240px;padding:15px 20px;border:2px solid #F4F2EC;font-size:15px;font-family:'Space Grotesk',sans-serif;background:transparent;color:#F4F2EC;outline:none">
-    <button type="submit" class="c-news" style="background:#D8F34C;color:#141414;border:2px solid #D8F34C;cursor:pointer;font-weight:700;font-size:15px;padding:15px 28px;font-family:'Space Grotesk',sans-serif;box-shadow:4px 4px 0 #5B2EE0">Keep Me Posted</button>
+  <div id="xg-subscribed" hidden style="font-family:'Unbounded',sans-serif;font-weight:600;font-size:18px;color:#D8F34C">You're on the list. See you in Leeds.</div>
+  <form id="xg-newsform" novalidate style="max-width:540px;margin:0 auto;text-align:left">
+    <label for="xg-email" style="display:block;font-size:13px;font-weight:600;letter-spacing:.04em;margin-bottom:8px">Email address</label>
+    <div style="display:flex;flex-wrap:wrap;gap:12px">
+      <input
+        id="xg-email"
+        name="email"
+        type="email"
+        required
+        autocomplete="email"
+        aria-describedby="xg-email-error"
+        placeholder="you@email.com"
+        style="flex:1;min-width:240px;padding:15px 20px;border:2px solid #F4F2EC;font-size:15px;font-family:'Space Grotesk',sans-serif;background:transparent;color:#F4F2EC;outline:none"
+      >
+      <button type="submit" class="c-news" style="background:#D8F34C;color:#141414;border:2px solid #D8F34C;cursor:pointer;font-weight:700;font-size:15px;padding:15px 28px;font-family:'Space Grotesk',sans-serif;box-shadow:4px 4px 0 #5B2EE0">Keep Me Posted</button>
+    </div>
+    <p id="xg-email-error" role="alert" hidden style="margin:10px 0 0;font-size:13px;font-weight:600;color:#D8F34C"></p>
   </form>
 </section>
 
@@ -372,9 +445,12 @@ nav{padding-left:12px !important;padding-right:12px !important}
   </div>
 </footer>
 
-<script define:vars={{ EVENT_DATE_ISO }}>
+<script define:vars={{ EVENT_DATE_ISO, EVENT_DURATION_MINUTES, NEWSLETTER_ENDPOINT, CONTACT_EMAIL }}>
   // ---- Countdown ----
+  // EVENT_DATE_ISO carries an explicit +01:00 offset, so this is the same
+  // instant for every visitor regardless of their own timezone.
   const target = new Date(EVENT_DATE_ISO).getTime();
+  const endsAt = target + EVENT_DURATION_MINUTES * 60000;
   const pad = (n) => String(n).padStart(2, '0');
   const cd = {
     dd: document.querySelector('[data-cd="dd"]'),
@@ -382,21 +458,43 @@ nav{padding-left:12px !important;padding-right:12px !important}
     mm: document.querySelector('[data-cd="mm"]'),
     ss: document.querySelector('[data-cd="ss"]'),
   };
+  const cdLabel = document.getElementById('xg-cd-label');
+  const cdGrid = document.getElementById('xg-cd-grid');
+  const cdOver = document.getElementById('xg-cd-over');
+  let cdTimer = null;
+
   const tick = () => {
-    const diff = Math.max(0, target - Date.now());
+    const now = Date.now();
+
+    // After the event: swap the zeroed clock for a closing message.
+    if (now >= endsAt) {
+      cdGrid.hidden = true;
+      cdLabel.hidden = true;
+      cdOver.hidden = false;
+      if (cdTimer) clearInterval(cdTimer);
+      return;
+    }
+
+    // During the event: keep the block, change the framing.
+    if (now >= target) {
+      cdLabel.textContent = 'HAPPENING NOW IN LEEDS';
+    }
+
+    const diff = Math.max(0, target - now);
     cd.dd.textContent = pad(Math.floor(diff / 86400000));
     cd.hh.textContent = pad(Math.floor(diff / 3600000) % 24);
     cd.mm.textContent = pad(Math.floor(diff / 60000) % 60);
     cd.ss.textContent = pad(Math.floor(diff / 1000) % 60);
   };
   tick();
-  setInterval(tick, 1000);
+  cdTimer = setInterval(tick, 1000);
 
   // ---- Mobile menu ----
   const burger = document.getElementById('xgnav-burger');
   const menu = document.getElementById('xg-menu');
   const setMenu = (open) => {
     menu.classList.toggle('open', open);
+    burger.setAttribute('aria-expanded', String(open));
     burger.textContent = open ? '✕' : '☰';
   };
   burger.addEventListener('click', () => setMenu(!menu.classList.contains('open')));
@@ -425,26 +523,113 @@ nav{padding-left:12px !important;padding-right:12px !important}
 
   // ---- Newsletter ----
   const form = document.getElementById('xg-newsform');
-  form.addEventListener('submit', (e) => {
+  const email = document.getElementById('xg-email');
+  const errEl = document.getElementById('xg-email-error');
+  const submitBtn = form.querySelector('button[type="submit"]');
+  const doneEl = document.getElementById('xg-subscribed');
+
+  const showError = (msg) => {
+    errEl.textContent = msg;
+    errEl.hidden = false;
+    form.classList.add('is-invalid');
+    email.setAttribute('aria-invalid', 'true');
+  };
+  const clearError = () => {
+    errEl.hidden = true;
+    form.classList.remove('is-invalid');
+    email.removeAttribute('aria-invalid');
+  };
+
+  email.addEventListener('input', clearError);
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    form.style.display = 'none';
-    document.getElementById('xg-subscribed').hidden = false;
+    clearError();
+
+    const value = email.value.trim();
+    if (!value || !email.checkValidity()) {
+      showError('Enter a valid email address so we can reach you.');
+      email.focus();
+      return;
+    }
+
+    // No provider wired up yet. Say so plainly instead of showing a success
+    // state for a subscription that was never recorded anywhere.
+    if (!NEWSLETTER_ENDPOINT) {
+      showError('Sign-up is not live yet. Email ' + CONTACT_EMAIL + ' and we will add you.');
+      return;
+    }
+
+    const label = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Adding you...';
+
+    try {
+      const res = await fetch(NEWSLETTER_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ email: value }),
+      });
+      if (!res.ok) throw new Error('Request failed with ' + res.status);
+      form.hidden = true;
+      doneEl.hidden = false;
+    } catch (err) {
+      showError('That did not go through. Try again, or email ' + CONTACT_EMAIL + '.');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = label;
+    }
   });
 
   // ---- GSAP motion ----
+  // The CSS @media (prefers-reduced-motion) rule only reaches CSS animations
+  // and transitions. Everything below is JS-driven inline style, so it needs
+  // its own guard or it runs regardless of the user's OS setting.
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
   const words = ['OPPORTUNITY', 'COMMUNITY', 'PURPOSE', 'CONFIDENCE', 'DIRECTION', 'HOME', 'PROSPERITY', 'X'];
   let wordIdx = 0;
+  let rotTimer = null;
+  let tickerTween = null;
+
+  // Static fallback for when the setting is switched on mid-session: stop the
+  // loops and put every animated element back to its resting design values.
+  // Set those values explicitly rather than using clearProps, which would also
+  // strip the inline styles that carry the stamp's fill, border and font size.
+  const settleStatic = () => {
+    if (rotTimer) { clearInterval(rotTimer); rotTimer = null; }
+    if (tickerTween) { tickerTween.kill(); tickerTween = null; }
+    if (!window.gsap) return;
+
+    const h1 = document.getElementById('xg-h1');
+    if (h1) gsap.set(h1.children, { x: 0, opacity: 1 });
+
+    const stamp = document.getElementById('xg-rotword');
+    if (stamp) gsap.set(stamp, { x: 0, opacity: 1, scale: 1, rotate: -2 });
+
+    const ticker = document.getElementById('xg-ticker');
+    if (ticker) gsap.set(ticker, { x: 0, xPercent: 0 });
+
+    if (window.ScrollTrigger) ScrollTrigger.getAll().forEach((t) => t.kill());
+    gsap.set('[data-reveal]', { clipPath: 'none', opacity: 1 });
+  };
+
   const wait = (cb) => (window.gsap && window.ScrollTrigger) ? cb() : setTimeout(() => wait(cb), 120);
-  wait(() => {
+
+  // On a reduced-motion load there is nothing to undo: the markup already
+  // renders in its resting state, so the animations simply never start.
+  if (!reduceMotion.matches) wait(() => {
     const gsap = window.gsap;
     gsap.registerPlugin(window.ScrollTrigger);
     // hero stacked lines intro
     const h1 = document.getElementById('xg-h1');
     if (h1) gsap.fromTo(h1.children, { x: -60, opacity: 0 }, { x: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: 'power4.out' });
     // rotating stamp word
-    setInterval(() => {
+    rotTimer = setInterval(() => {
       const el = document.getElementById('xg-rotword');
-      if (!el) return;
+      // Skip work while the tab is backgrounded, otherwise tweens queue up
+      // behind a paused rAF and all replay at once when the visitor returns.
+      if (!el || document.hidden) return;
       gsap.to(el, { scale: 0.6, opacity: 0, rotate: 6, duration: 0.22, ease: 'power2.in', onComplete: () => {
         wordIdx = (wordIdx + 1) % words.length;
         el.textContent = words[wordIdx];
@@ -454,13 +639,19 @@ nav{padding-left:12px !important;padding-right:12px !important}
     // ticker strip
     const ticker = document.getElementById('xg-ticker');
     if (ticker) {
-      gsap.to(ticker, { xPercent: -33.34, ease: 'none', duration: 18, repeat: -1 });
+      tickerTween = gsap.to(ticker, { xPercent: -33.34, ease: 'none', duration: 18, repeat: -1 });
     }
     // section reveals with hard clip wipe
     gsap.utils.toArray('[data-reveal]').forEach((el) => {
       gsap.fromTo(el, { clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0 0 0% 0)', duration: 0.9, ease: 'power3.inOut',
         scrollTrigger: { trigger: el, start: 'top 85%' } });
     });
+  });
+
+  // Respect the setting being changed after load, in both directions.
+  reduceMotion.addEventListener('change', (e) => {
+    if (e.matches) settleStatic();
+    else location.reload();
   });
 </script>
 </body>
